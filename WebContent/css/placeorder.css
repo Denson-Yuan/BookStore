@@ -1,0 +1,30 @@
+.container{
+	margin-top: 1em;
+}
+
+table{
+	text-align: center;
+}
+
+#order-detail img{
+	padding:10%;
+}
+
+#reciver-info .form-control{
+	width:100%;
+}
+
+.total{
+	font-size:1.5em;
+	float: right;
+	margin-right:5%;
+}
+
+.table-reciver-info .form-control{
+	font-size:1.2em;
+}
+
+.submit-order{
+	font-size: 1em;
+	margin-bottom: 2%;
+}

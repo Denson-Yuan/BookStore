@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+    "http://struts.apache.org/dtds/struts-2.3.dtd">
+<struts>
+	<constant name="struts.action.extension" value="action"></constant>
+	<package name="BookStore" extends="json-default">
+		<action name="user_*" method="{1}" class="com.whut.action.UserAction">
+			<result type="json">
+				<param name="root">dataMap</param>  
+			</result>
+			<result name="logout">/index.jsp</result>
+			<result name="register">/register.jsp</result>
+			<result name="person">/personalpage.jsp</result>
+		</action>
+		
+		<action name="book_*" method="{1}" class="com.whut.action.BookAction">
+			<result type="json">
+				<param name="root">dataMap</param>  
+			</result>
+			<result name="type">/type.jsp</result>
+			<result name="detail">/details.jsp</result>
+		</action>
+		
+		<action name="cart_*" method="{1}" class="com.whut.action.CartAction">
+			<result type="json">
+				<param name="root">dataMap</param>  
+			</result>
+			<result name="cart">/checkout.jsp</result>
+			<result name="placeorder">/placeorder.jsp</result>
+		</action>
+		
+		<action name="order_*" method="{1}" class="com.whut.action.OrderAction">
+			<result type="json">
+				<param name="root">dataMap</param>  
+			</result>
+		</action>
+		
+		
+		
+		<action name="userlist" class="com.whut.action.UserAction"  method="showAllUser">
+            <result name="success" type="json" >
+                <param name="root">dataMap</param>
+            </result>  
+        </action>
+        <action name="backlogin" class="com.whut.action.UserAction"  method="backLogin">
+            <result name="success" type="json" >
+                <param name="root">dataMap</param>
+            </result>  
+        </action>
+		<action name="booktypelist" class="com.whut.action.BookTypeAction"  method="getBookTypes">
+            <result name="success" type="json" >
+                <param name="root">dataMap</param>
+            </result>  
+        </action>
+        <action name="addbooktype" class="com.whut.action.BookTypeAction"  method="addBookType"></action>
+        <action name="updatebooktype" class="com.whut.action.BookTypeAction"  method="updateBookType"></action>
+        
+        <action name="booklist" class="com.whut.action.BookAction"  method="getBooks">
+            <result name="success" type="json" >
+                <param name="root">dataMap</param>
+            </result>  
+        </action>
+        <action name="addbook" class="com.whut.action.BookAction"  method="addBook"></action>
+        <action name="updatebook" class="com.whut.action.BookAction"  method="updateBook"></action>
+        
+        <action name="orderlist" class="com.whut.action.OrderAction"  method="getOrderDetails">
+            <result name="success" type="json" >
+                <param name="root">dataMap</param>
+            </result>  
+        </action>
+		<action name="searchorder" class="com.whut.action.OrderAction"  method="searchOrders">
+            <result name="success" type="json" >
+                <param name="root">dataMap</param>
+            </result>  
+        </action>
+        <action name="confirmorder" class="com.whut.action.OrderAction"  method="confirmOrder">
+           <result name="success" type="json" >
+                <param name="root">dataMap</param>
+            </result>  
+        </action>
+	</package>
+</struts>

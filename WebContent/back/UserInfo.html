@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="Styles/themes/default/easyui.css" />
+    <link rel="stylesheet" type="text/css" href="Styles/themes/icon.css" />
+    <link rel="stylesheet" type="text/css" href="Styles/demo.css" />
+    <script type="text/javascript" src="Scripts/jquery.min.js"></script>
+    <script type="text/javascript" src="Scripts/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="Styles/locale/easyui-lang-zh_CN.js"></script>
+  
+    <style type="text/css">
+        p {
+            color: black;
+            font-family: 'Baskerville Old Face';
+            font-size: 20px;
+            font-weight:bold;
+        }
+    </style>
+    <script>
+    $(function() {
+        //加载数据  
+        $('#in').datagrid({
+            width: 1000,
+            height: 400,
+            striped: true,
+            singleSelect: true,
+            url: '../userlist.action',
+            queryParams: { v: new Date().getTime() },
+            loadMsg: '数据加载中请稍后……',
+            pagination: true,
+            pageSize: 10,
+            rownumbers: true,
+            method: 'POST',
+            columns: [[
+                 { field: 'id', title: '用户编号', align: 'center', width: 100 },
+                 { field: 'email', title: '邮箱', align: 'center', width: 200 },
+                 { field: 'name', title: '用户名', align: 'center', width: 100 },
+                 { field: 'sex', title: '性别', align: 'center', width: 100 },
+                 { field: 'phone', title: '电话', align: 'center', width: 100 },
+                 { field: 'address1', title: '地址1', align: 'center', width: 200 },
+                 { field: 'address2', title: '地址2', align: 'center', width: 200 },
+                
+
+            ]]
+        });
+        $("#in").datagrid('reload');
+    })
+    </script>
+    <title></title>
+</head>
+<body>
+    <p>用户信息</p>
+    <div>
+        <table id="in" class="easyui-datagrid"></table>
+    </div>
+    
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="Styles/themes/default/easyui.css" />
+    <link rel="stylesheet" type="text/css" href="Styles/themes/icon.css" />
+    <link rel="stylesheet" type="text/css" href="Styles/demo.css" />
+    <script type="text/javascript" src="Scripts/jquery.min.js"></script>
+    <script type="text/javascript" src="Scripts/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="Styles/locale/easyui-lang-zh_CN.js"></script>
+  
+    <style type="text/css">
+        p {
+            color: black;
+            font-family: 'Baskerville Old Face';
+            font-size: 20px;
+            font-weight:bold;
+        }
+    </style>
+    <script>
+    $(function() {
+        //加载数据  
+        $('#in').datagrid({
+            width: 1000,
+            height: 400,
+            striped: true,
+            singleSelect: true,
+            url: '../booktypelist.action',
+            queryParams: { v: new Date().getTime() },
+            loadMsg: '数据加载中请稍后……',
+            pagination: true,
+            pageSize: 10,
+            rownumbers: true,
+            toolbar: '#tb',
+            onClickRow: ClickRow,
+            method: 'POST',
+            columns: [[
+                 { field: 'id', title: '书籍类别编号', align: 'center', width: 400 },
+                 { field: 'typeName', title: '书籍类别名称', align: 'center', width: 400 },
+                
+
+            ]]
+        });
+        $("#in").datagrid('reload');
+    })
+    function onClickRow(index) {
+        if (editIndex != index) {
+            if (endEditing()) {
+                $('#in').datagrid('selectRow', index)
+                        .datagrid('beginEdit', index);
+                editIndex = index;
+            } else {
+                $('#in').datagrid('selectRow', editIndex);
+            }
+        }
+    }
+
+    function ClickRow(rowIndex, rowData) {
+        if (rowData) {
+            document.getElementById('id').value = rowData.id;
+            document.getElementById('typeName2').value = rowData.typeName;
+
+        }
+    }
+    function openDialog1() {
+        $('#ad').dialog('open');
+    }
+    function openDialog2() {
+        $('#ud').dialog('open');
+    }
+
+     function add() {
+         $.ajax({
+             url: "../addbooktype.action",
+             type: "Post",
+             data: {
+                typeName:$("#typeName1").val(),  
+             },
+            error: function (request, message, ex) {
+                 alert(message + request + ex);             },
+             success: function () {
+                 alert("添加成功！");
+                 $('#ad').dialog('close');
+                 $('#in').datagrid('load', { v: new Date().getTime() });
+           }
+        })     
+    }
+
+
+
+     function refresh() {
+         $.ajax({
+             url: "../updatebooktype.action?v=' + new Date().getTime();",
+             type: "Post",
+             data: {  
+                 id: $("#id").val(),              
+                 typeName: $("#typeName2").val(),                      
+             },
+             error: function (request, message, ex) {
+                 alert(message + request + ex);
+             },
+             success: function (returnValue) {
+                 alert("修改成功！");
+                 $('#ud').dialog('close');
+                 $('#in').datagrid('load', { v: new Date().getTime() });          
+             }
+         })
+     }
+    
+    </script>
+    <title></title>
+</head>
+<body>
+    <p>图书类别</p>
+    <div>
+        <table id="in" class="easyui-datagrid"></table>
+    </div>
+    <div id="tb" style="height: auto">
+        <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="openDialog1()">添加</a>
+        <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit'" onclick="openDialog2()">修改</a>
+    </div>
+    <div id="ud" class="easyui-dialog" title="修改书籍类别" style="width: 450px; padding: 10px" data-options="buttons:'#bc',modal:true,closed:true">
+        <table width="100%" style="line-height:38px;border:red 1px;">
+            <tr align="center">
+                <td align="right">书籍类别编号：</td>
+                <td align="left">
+                    <input readonly="readonly" class="easyui-validatebox" id="id" name="id" data-options="editable:false" /></td>
+            </tr>
+           <tr align="center">
+                <td align="right">书籍类别名称：</td>
+                <td align="left"><input id="typeName2" name="typeName2" class="easyui-validatebox" data-options="required:true" /></td>
+            </tr>
+        </table>
+    </div>
+    <div id="bc">
+        <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" onclick="refresh()">更新</a>
+    </div>
+    <div id="ad" class="easyui-dialog" title="添加书籍类别信息" style="width: 450px; padding: 10px" data-options="buttons:'#bb',modal:true,closed:true">
+        <table width="100%" style="line-height:40px;border:red 1px;">
+           <tr align="center">
+                <td align="right">书籍类别名称：</td>
+                <td align="left"><input id="typeName1" name="typeName1" class="easyui-validatebox" data-options="required:true" /></td>
+            </tr>
+         </table>
+     </div>
+       <div id="bb">
+        <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="add()">添加</a>
+       </div>        
+</body>
+</html>

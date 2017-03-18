@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="Styles/themes/default/easyui.css" />
+    <link rel="stylesheet" type="text/css" href="Styles/themes/icon.css" />
+    <link rel="stylesheet" type="text/css" href="Styles/demo.css" />
+    <script type="text/javascript" src="Scripts/jquery.min.js"></script>
+    <script type="text/javascript" src="Scripts/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="Styles/locale/easyui-lang-zh_CN.js"></script>
+  
+    <style type="text/css">
+        p {
+            color: black;
+            font-family: 'Baskerville Old Face';
+            font-size: 20px;
+            font-weight:bold;
+        }
+    </style>
+    <script>
+    $(function() {
+        //加载数据  
+        $('#in').datagrid({
+            width: 1060,
+            height: 400,
+            striped: true,
+            singleSelect: true,
+            url: '../booklist.action',
+            queryParams: { v: new Date().getTime() },
+            loadMsg: '数据加载中请稍后……',
+            pagination: true,
+            pageSize: 10,
+            rownumbers: true,
+            toolbar: '#tb',
+            onClickRow: ClickRow,
+            method: 'POST',
+            columns: [[
+                 { field: 'id', title: '图书编号', align: 'center', width: 50 },
+                 { field: 'isbn', title: 'ISBN', align: 'center', width: 120 },
+                 { field: 'name', title: '书名', align: 'center', width: 150 },
+                 { field: 'author', title: '著者/译者', align: 'center', width: 100 },
+                 { field: 'typeName', title: '类别', align: 'center', width: 80 },
+                 { field: 'press', title: '出版社', align: 'center', width: 150 },
+                 { field: 'publishTime', title: '出版时间', align: 'center', width: 100 },
+                 { field: 'price', title: '价格', align: 'center', width: 50 },
+                 { field: 'amount', title: '数量', align: 'center', width: 50 },
+                 { field: 'imgPath', title: '图书封面', align: 'center', width: 100 },
+                 { field: 'introduction', title: '简介', align: 'center', width: 800 },
+                 
+
+            ]]
+        });
+        $("#in").datagrid('reload');
+    })
+    function onClickRow(index) {
+        if (editIndex != index) {
+            if (endEditing()) {
+                $('#in').datagrid('selectRow', index)
+                        .datagrid('beginEdit', index);
+                editIndex = index;
+            } else {
+                $('#in').datagrid('selectRow', editIndex);
+            }
+        }
+    }
+
+    function ClickRow(rowIndex, rowData) {
+        if (rowData) {
+            document.getElementById('id').value = rowData.id;
+            document.getElementById('isbn2').value = rowData.isbn;
+            document.getElementById('name2').value = rowData.name;
+            document.getElementById('author2').value = rowData.author;
+            $('#typeId2').combobox('setValue', rowData.typeName);
+            document.getElementById('press2').value = rowData.press;
+            $('#publishTime2').datebox('setValue',rowData.publishTime);
+            document.getElementById('price2').value = rowData.price;
+            document.getElementById('amount2').value = rowData.amount;
+            document.getElementById('imgPath2').value = rowData.imgPath;
+            document.getElementById('introduction2').value = rowData.introduction;
+        }
+    }
+    function openDialog1() {
+        $('#ad').dialog('open');
+    }
+    function openDialog2() {
+        $('#ud').dialog('open');
+    }
+
+     function add() {
+         $.ajax({
+             url: "../addbook.action",
+             type: "Post",
+             data: {
+                isbn:$("#isbn1").val(), 
+                name:$("#name1").val(), 
+                author:$("#author1").val(),
+                typeId: $("#typeId1").combobox('getValue'),
+                press:$("#press1").val(),
+                publishTime:$("#publishTime1").datebox('getValue'),
+                price:$("#price1").val(),
+                amount:$("#amount1").val(),
+                imgPath:$("#imgPath1").val(),
+                introduction:$("#introduction1").val(),
+             },
+            error: function (request, message, ex) {
+                 alert(message + request + ex);             },
+             success: function () {
+                 alert("添加成功！");
+                 $('#ad').dialog('close');
+                 $('#in').datagrid('load', { v: new Date().getTime() });
+           }
+        })     
+    }
+
+     function refresh() {
+         $.ajax({
+             url: "../updatebook.action?v=' + new Date().getTime();",
+             type: "Post",
+             data: {  
+                 id: $("#id").val(),              
+                 isbn:$("#isbn2").val(), 
+                 name:$("#name2").val(), 
+                 author:$("#author2").val(),
+                 typeId: $("#typeId2").combobox('getValue'),
+                 press:$("#press2").val(),
+                 publishTime:$("#publishTime2").datebox('getValue'),
+                 price:$("#price2").val(),
+                 amount:$("#amount2").val(),
+                 imgPath:$("#imgPath2").val(),
+                 introduction:$("#introduction2").val(),                      
+             },
+             error: function (request, message, ex) {
+                 alert(message + request + ex);
+             },
+             success: function (returnValue) {
+                 alert("修改成功");
+                 $('#ud').dialog('close');
+                 $('#in').datagrid('load', { v: new Date().getTime() });          
+             }
+         })
+     }
+    
+    </script>
+    <script>
+        var  url="../booktypelist.action";
+        $.getJSON(url, function(json) {
+    	  $('#typeId1').combobox({
+    	  data : json.rows,
+    	  valueField:'id',
+    	  textField:'typeName'
+    	 });
+    	  $('#typeId2').combobox({
+        	  data : json.rows,
+        	  valueField:'id',
+        	  textField:'typeName'
+        	 });
+        });
+    
+    </script>
+    <title></title>
+</head>
+<body>
+    <p>图书信息</p>
+    <div>
+        <table id="in" class="easyui-datagrid"></table>
+    </div>
+    <div id="tb" style="height: auto">
+        <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="openDialog1()">添加</a>
+        <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit'" onclick="openDialog2()">修改</a>
+    </div>
+    <div id="ud" class="easyui-dialog" title="修改图书信息" style="width: 450px; padding: 10px" data-options="buttons:'#bc',modal:true,closed:true">
+        <table width="100%" style="line-height:38px;border:red 1px;">
+            <tr align="center">
+                <td align="right">图书编号：</td>
+                <td align="left">
+                    <input readonly="readonly" class="easyui-validatebox" id="id" name="id" data-options="editable:false" /></td>
+            </tr>
+           <tr align="center">
+                <td align="right">ISBN：</td>
+                <td align="left"><input id="isbn2" name="isbn2" class="easyui-validatebox" data-options="required:true" /></td>
+            </tr>
+            <tr align="center">
+                <td align="right">书名：</td>
+                <td align="left"><input id="name2" name="name2" class="easyui-validatebox" data-options="required:true" /></td>
+            </tr>
+            <tr align="center">
+                <td align="right">著者/译者：</td>
+                <td align="left"><input id="author2" name="author2" class="easyui-validatebox" data-options="required:true" /></td>
+            </tr>
+            <tr align="center">
+                <td align="right">图书类别：</td>
+                <td align="left">
+                    <input class="easyui-combobox" id="typeId2" name="typeId2" data-options="required:true,panelHeight:200,editable:false" />
+                </td>
+            </tr>
+            <tr align="center">
+                <td align="right">出版社：</td>
+                <td align="left"><input id="press2" name="press2" class="easyui-validatebox" data-options="required:true" /></td>
+            </tr>
+            <tr align="center">
+                <td align="right">出版时间：</td>
+                <td align="left"><input id="publishTime2" name="publishTime2" class="easyui-datebox" data-options="required:true" /></td>
+            </tr>
+            <tr align="center">
+                <td align="right">价格：</td>
+                <td align="left"><input id="price2" name="price2" class="easyui-validatebox" data-options="required:true" /></td>
+            </tr>
+            <tr align="center">
+                <td align="right">数量：</td>
+                <td align="left"><input id="amount2" name="amount2" class="easyui-validatebox" data-options="required:true" /></td>
+            </tr>
+            <tr align="center">
+                <td align="right">图书封面：</td>
+                <td align="left"><input id="imgPath2" name="imgPath2" class="easyui-validatebox" data-options="required:true" /></td>
+            </tr>
+             <tr align="center">
+                <td align="right">简介：</td>
+                <td align="left"><input id="introduction2" name="introduction2" class="easyui-validatebox" data-options="required:true" /></td>
+            </tr>
+
+        </table>
+    </div>
+    <div id="bc">
+        <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" onclick="refresh()">更新</a>
+    </div>
+    <div id="ad" class="easyui-dialog" title="添加图书信息" style="width: 450px; padding: 10px" data-options="buttons:'#bb',modal:true,closed:true">
+        <table width="100%" style="line-height:40px;border:red 1px;">
+           <tr align="center">
+                <td align="right">ISBN：</td>
+                <td align="left"><input id="isbn1" name="isbn1" class="easyui-validatebox" data-options="required:true" /></td>
+            </tr>
+            <tr align="center">
+                <td align="right">书名：</td>
+                <td align="left"><input id="name1" name="name1" class="easyui-validatebox" data-options="required:true" /></td>
+            </tr>
+            <tr align="center">
+                <td align="right">著者/译者：</td>
+                <td align="left"><input id="author1" name="author1" class="easyui-validatebox" data-options="required:true" /></td>
+            </tr>
+            <tr align="center">
+                <td align="right">图书类别：</td>
+                <td align="left">
+                    <input class="easyui-combobox" id="typeId1" name="typeId1" data-options="required:true,panelHeight:200,editable:false"  />
+                </td>
+            </tr>
+            <tr align="center">
+                <td align="right">出版社：</td>
+                <td align="left"><input id="press1" name="press1" class="easyui-validatebox" data-options="required:true" /></td>
+            </tr>
+            <tr align="center">
+                <td align="right">出版时间：</td>
+                <td align="left"><input id="publishTime1" name="publishTime1" class="easyui-datebox" data-options="required:true" /></td>
+            </tr>
+            <tr align="center">
+                <td align="right">价格：</td>
+                <td align="left"><input id="price1" name="price1" class="easyui-validatebox" data-options="required:true" /></td>
+            </tr>
+            <tr align="center">
+                <td align="right">数量：</td>
+                <td align="left"><input id="amount1" name="amount1" class="easyui-validatebox" data-options="required:true" /></td>
+            </tr>
+            <tr align="center">
+                <td align="right">图书封面：</td>
+                <td align="left"><input id="imgPath1" name="imgPath1" class="easyui-validatebox" data-options="required:true" /></td>
+            </tr>
+             <tr align="center">
+                <td align="right">简介：</td>
+                <td align="left"><input id="introduction1" name="introduction1" class="easyui-validatebox" data-options="required:true" /></td>
+            </tr>
+         </table>
+     </div>
+       <div id="bb">
+        <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="add()">添加</a>
+       </div>        
+</body>
+</html>

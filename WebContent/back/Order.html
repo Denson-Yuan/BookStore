@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="Styles/themes/default/easyui.css" />
+    <link rel="stylesheet" type="text/css" href="Styles/themes/icon.css" />
+    <link rel="stylesheet" type="text/css" href="Styles/demo.css" />
+    <script type="text/javascript" src="Scripts/jquery.min.js"></script>
+    <script type="text/javascript" src="Scripts/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="Styles/locale/easyui-lang-zh_CN.js"></script>
+  
+    <style type="text/css">
+        p {
+            color: black;
+            font-family: 'Baskerville Old Face';
+            font-size: 20px;
+            font-weight:bold;
+        }
+    </style>
+    <script>
+    $(function() {
+        //加载数据  
+        $('#in').datagrid({
+            width: 1060,
+            height: 400,
+            striped: true,
+            singleSelect: true,
+            url: '../orderlist.action',
+            queryParams: { v: new Date().getTime() },
+            loadMsg: '数据加载中请稍后……',
+            onLoadSuccess:mergeCells,
+            toolbar: '#tb',
+            onClickRow: ClickRow,
+            pagination: true,
+            pageSize: 10,
+            rownumbers: true,
+            method: 'POST',
+            columns: [[
+                 { field: 'orderId', title: '订单编号', align: 'center', width: 60 },
+                 { field: 'userName', title: '用户名', align: 'center', width: 80 },
+                 { field: 'email', title: '账户邮箱', align: 'center', width: 150 },
+                 { field: 'reciver', title: '收货人', align: 'center', width: 80 },
+                 { field: 'phone', title: '电话', align: 'center', width: 120 },
+                 { field: 'address', title: '收货地址', align: 'center', width: 200 },
+                 { field: 'bookName', title: '书名', align: 'center', width: 150 },
+                 { field: 'count', title: '数量', align: 'center', width: 50 },
+                 { field: 'price', title: '单价（元）', align: 'center', width: 60 },
+                 { field: 'orderState', title: '订单状态', align: 'center', width: 80 },
+                 { field: 'orderTime', title: '下单时间', align: 'center', width: 140 },
+                 { field: 'finishTime', title: '完成订单时间', align: 'center', width: 140 },
+                
+                
+            ]],
+        });
+        $("#in").datagrid('reload');
+    })
+
+    function mergeCells(data){
+	    var arr =[ {mergeFiled:"orderId",premiseFiled:"orderId"},
+	             {mergeFiled:"userName",premiseFiled:"orderId"},	//合并列的field数组及对应前提条件filed（为空则直接内容合并）
+	             {mergeFiled:"email",premiseFiled:"orderId"},
+	             {mergeFiled:"reciver",premiseFiled:"orderId"},
+	             {mergeFiled:"phone",premiseFiled:"orderId"},
+	             {mergeFiled:"address",premiseFiled:"orderId"},
+	             {mergeFiled:"orderTime",premiseFiled:"orderId"},
+	             {mergeFiled:"finishTime",premiseFiled:"orderId"},
+	             {mergeFiled:"orderState",premiseFiled:"orderId"},
+	              ];	
+	   var dg = $("#in");	//要合并的datagrid中的表格id
+	   var rowCount = dg.datagrid("getRows").length;
+	   var cellName;
+	   var span;
+	   var perValue = "";
+	   var curValue = "";
+	   var perCondition="";
+	   var curCondition="";
+	   var flag=true;
+	   var condiName="";
+	   var length = arr.length - 1;
+	   for (i = length; i >= 0; i--) {
+		  cellName = arr[i].mergeFiled;
+		  condiName=arr[i].premiseFiled;
+		  if(condiName!=null){
+			  flag=false;
+		  }
+		  perValue = "";
+		  perCondition="";
+		  span = 1;
+		  for (row = 0; row <= rowCount; row++) {
+			if (row == rowCount) {
+				curValue = "";
+				curCondition="";
+			} else {
+				curValue = dg.datagrid("getRows")[row][cellName];
+				/* if(cellName=="ORGSTARTTIME"){//特殊处理这个时间字段
+					curValue =formatDate(dg.datagrid("getRows")[row][cellName],"");
+				} */
+				if(!flag){
+					curCondition=dg.datagrid("getRows")[row][condiName];
+				}
+			}
+			if (perValue == curValue&&(flag||perCondition==curCondition)) {
+				span += 1;
+			} else {
+				var index = row - span;
+				dg.datagrid('mergeCells', {
+					index : index,
+					field : cellName,
+					rowspan : span,
+					colspan : null
+				});
+				span = 1;
+				perValue = curValue;
+				if(!flag){
+					perCondition=curCondition;
+				}
+			  }
+		  }
+	  }
+   }
+    
+    function onClickRow(index) {
+        if (editIndex != index) {
+            if (endEditing()) {
+                $('#in').datagrid('selectRow', index)
+                        .datagrid('beginEdit', index);
+                editIndex = index;
+            } else {
+                $('#in').datagrid('selectRow', editIndex);
+            }
+        }
+    }
+
+    function ClickRow(rowIndex, rowData) {
+        if (rowData) {
+            document.getElementById('orderId').value = rowData.orderId;
+            document.getElementById('orderState').value = rowData.orderState;
+        }
+    }
+    
+    
+    function searchs() {
+        var state = $("#state").combobox('getValue');
+        if (state == null) { leaf = ""; }
+        $.ajax({
+            url: "../searchorder.action?v=' + new Date().getTime();",
+            type: "Post",
+            dataType: "json",
+            data: {
+                state: state,
+            },
+            success: function (data) {
+                $('#in').datagrid('loadData', data);
+            }
+        })
+    }
+
+    function showall() {
+        $('#in').datagrid('load', { v: new Date().getTime(), });
+        $('#state').combobox('setValue', '');
+       
+    }
+    
+    function cancel(){
+    	 $.ajax({
+             url: "../cancelorder.action?v=' + new Date().getTime();",
+             type: "Post",
+             dataType: "json",
+             data: {
+                 orderId:$("#orderId").val(),
+                 orderState:$("#orderState").val(),
+             },
+             success: function (data) {
+                 $('#in').datagrid('loadData', data);
+             }
+         })
+    }
+    
+    function confirm(){
+    	 $.ajax({
+             url: "../confirmorder.action?v=" + new Date().getTime(),
+             type: "Post",
+             dataType: "json",
+             data: {
+                 orderId:$("#orderId").val(),
+                 orderState:$("#orderState").val(),
+             },
+             success: function (maps) {
+            	 if(maps.isSuccess){
+                     alert(maps.msg)
+                     $('#in').datagrid('load', { v: new Date().getTime() });
+            	 }
+            	 else{
+            		 alert(maps.msg);
+            	 }
+             },
+            
+         });
+    	
+    }
+    
+    </script>
+    <title></title>
+</head>
+<body>
+    <p>订单管理</p>
+    <div>
+        <table id="in" class="easyui-datagrid"></table>
+    </div>
+    <div id="tb" style="height: auto">
+        
+        <span>订单状态:</span>
+        <input class="easyui-combobox" id="state" name="state" data-options="panelHeight:70,editable:false,
+			        valueField: 'label',
+		            textField: 'value',
+		            data: [{
+			          label: '1',
+			          value: '未完成'
+		            },{
+			          label: '2',
+			          value: '取消'
+		            },{
+			          label: '3',
+			          value: '已完成'
+		            }]"  />&nbsp;&nbsp;
+        <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="searchs()">查询</a>&nbsp;&nbsp;
+        <a href="#" class="easyui-linkbutton" onclick="showall()">清空查询</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit'" onclick="cancel()">取消订单</a>
+        <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit'" onclick="confirm()">确认收货</a>
+    </div>
+    <div>
+        <input id="orderId" name="orderId" class="easyui-validatebox" hidden="hidden"/>
+        <input id="orderState" name="orderState" class="easyui-validatebox" hidden="hidden" />
+     </div> 
+</body>
+</html>
